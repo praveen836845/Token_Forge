@@ -5,10 +5,10 @@ import { ArrowRight, Zap, Shield, BarChart3, Layers } from 'lucide-react';
 
 const Home = () => {
   const homeRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     if (!homeRef.current) return;
-    
+
     const ctx = gsap.context(() => {
       // Hero section animations
       gsap.from('.hero-title', {
@@ -17,7 +17,7 @@ const Home = () => {
         duration: 1,
         ease: 'power3.out'
       });
-      
+
       gsap.from('.hero-subtitle', {
         y: 30,
         opacity: 0,
@@ -25,7 +25,7 @@ const Home = () => {
         delay: 0.3,
         ease: 'power3.out'
       });
-      
+
       gsap.from('.hero-cta', {
         y: 20,
         opacity: 0,
@@ -33,7 +33,7 @@ const Home = () => {
         delay: 0.6,
         ease: 'power3.out'
       });
-      
+
       // Features section animations
       gsap.from('.feature-card', {
         y: 50,
@@ -46,7 +46,7 @@ const Home = () => {
           start: 'top 80%'
         }
       });
-      
+
       // Networks section
       gsap.from('.network-logo', {
         scale: 0.8,
@@ -59,7 +59,7 @@ const Home = () => {
           start: 'top 85%'
         }
       });
-      
+
       // Stats animation
       gsap.from('.stat-item', {
         y: 30,
@@ -72,10 +72,10 @@ const Home = () => {
         }
       });
     }, homeRef);
-    
+
     return () => ctx.revert();
   }, []);
-  
+
   return (
     <div ref={homeRef} className="pt-24">
       {/* Hero Section */}
@@ -96,18 +96,18 @@ const Home = () => {
             </Link>
           </div>
         </div>
-        
+
         {/* Animated background glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-indigo-600/20 blur-[100px] -z-10" />
       </section>
-      
+
       {/* Features Section */}
       <section className="features-section py-20 bg-black/30 backdrop-blur-lg relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 gradient-text">
             Why Choose TokenForge
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Feature 1 */}
             <div className="feature-card glass-card p-6 sm:p-8 relative overflow-hidden group">
@@ -124,7 +124,7 @@ const Home = () => {
                 </p>
               </div>
             </div>
-            
+
             {/* Feature 2 */}
             <div className="feature-card glass-card p-6 sm:p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 opacity-10 transform -translate-y-4 translate-x-4 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700">
@@ -140,7 +140,7 @@ const Home = () => {
                 </p>
               </div>
             </div>
-            
+
             {/* Feature 3 */}
             <div className="feature-card glass-card p-6 sm:p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 opacity-10 transform -translate-y-4 translate-x-4 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700">
@@ -156,7 +156,7 @@ const Home = () => {
                 </p>
               </div>
             </div>
-            
+
             {/* Feature 4 */}
             <div className="feature-card glass-card p-6 sm:p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 opacity-10 transform -translate-y-4 translate-x-4 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700">
@@ -175,41 +175,47 @@ const Home = () => {
           </div>
         </div>
       </section>
-      
+
       {/* Supported Networks */}
       <section className="networks-section py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold mb-16">Supported Networks</h2>
-          
+
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
             {/* Network logos - these would be actual images in a real project */}
             <div className="network-logo w-16 h-16 flex items-center justify-center bg-white/10 rounded-full p-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">ETH</div>
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">ETH </div>
             </div>
-            
+
             <div className="network-logo w-16 h-16 flex items-center justify-center bg-white/10 rounded-full p-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center text-white font-bold">BSC</div>
             </div>
-            
+
             <div className="network-logo w-16 h-16 flex items-center justify-center bg-white/10 rounded-full p-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold">MATIC</div>
             </div>
-            
-            <div className="network-logo w-16 h-16 flex items-center justify-center bg-white/10 rounded-full p-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-red-500 to-pink-600 flex items-center justify-center text-white font-bold">AVAX</div>
+
+            <div className="network-logo relative w-16 h-16 flex items-center justify-center bg-white/10 rounded-full p-3 group">
+              {/* Glowing outer ring */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-500 to-pink-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              {/* Animated inner circle */}
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-red-500 to-pink-600 bg-[length:200%_100%] animate-gradient-shine flex items-center justify-center text-white font-bold shadow-[0_0_15px_2px_rgba(255,65,108,0.5)]">
+                SUI
+              </div>
             </div>
-            
+
+
             <div className="network-logo w-16 h-16 flex items-center justify-center bg-white/10 rounded-full p-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold">ALGO</div>
             </div>
-            
+
             <div className="network-logo w-16 h-16 flex items-center justify-center bg-white/10 rounded-full p-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-cyan-500 flex items-center justify-center text-white font-bold">SOL</div>
             </div>
           </div>
         </div>
       </section>
-      
+
       {/* Statistics */}
       <section className="stats-section py-20 bg-black/30 backdrop-blur-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -218,17 +224,17 @@ const Home = () => {
               <div className="text-4xl md:text-5xl font-bold gradient-text mb-2">1K+</div>
               <p className="text-white/70">Tokens Created</p>
             </div>
-            
+
             <div className="stat-item text-center">
               <div className="text-4xl md:text-5xl font-bold gradient-text mb-2">1</div>
               <p className="text-white/70">Supported Countries</p>
             </div>
-            
+
             <div className="stat-item text-center">
               <div className="text-4xl md:text-5xl font-bold gradient-text mb-2">1</div>
               <p className="text-white/70">Blockchain Networks</p>
             </div>
-            
+
             <div className="stat-item text-center">
               <div className="text-4xl md:text-5xl font-bold gradient-text mb-2">99.9%</div>
               <p className="text-white/70">Success Rate</p>
@@ -236,14 +242,14 @@ const Home = () => {
           </div>
         </div>
       </section>
-      
+
       {/* CTA Section */}
       <section className="py-20 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="glass-card overflow-hidden p-8 md:p-12 rounded-3xl relative">
             {/* Background gradient */}
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-500/20 to-purple-600/20 -z-10"></div>
-            
+
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Launch Your Token?</h2>
               <p className="text-xl text-white/80 mb-8">

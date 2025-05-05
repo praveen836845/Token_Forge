@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
-import { ArrowLeft, ArrowRight, CheckCircle2, Info, HelpCircle, PlusCircle,ImageIcon, Shield, CreditCard ,Copy, ExternalLink} from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Info, HelpCircle, PlusCircle, ImageIcon, Shield, CreditCard, Copy, ExternalLink } from 'lucide-react';
 import { Transaction } from "@mysten/sui/transactions";
 import {
   useCurrentAccount,
@@ -241,7 +241,7 @@ const CreateToken = () => {
       tx.moveCall({
         target: `${FACTORY_PACKAGE_ID}::${FACTORY_MODULE}::${FACTORY_FUNCTION}`,
         arguments: [
-          tx.pure("vector<u8>",  nameBytes),
+          tx.pure("vector<u8>", nameBytes),
           tx.pure("vector<u8>", symbolBytes),
           tx.pure("u8", decimalsNum),
           tx.pure("u64", initialSupplyBig),
@@ -351,7 +351,7 @@ const CreateToken = () => {
             <button
               className="btn-primary"
               onClick={handleNextStep}
-              disabled={!selectedType}
+              // disabled={!selectedType}
             >
               Continue <ArrowRight size={18} className="ml-2" />
             </button>
@@ -365,29 +365,29 @@ const CreateToken = () => {
           style={{ display: 'none' }}
         >
           <h2 className="text-2xl font-semibold mb-6">Select Blockchain Network</h2>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-            {NETWORKS.map(network => (
-              <div
-                key={network.id}
-                className={`glass-card p-6 flex items-center border-2 transition-all ${network.disabled
-                  ? 'opacity-50 cursor-not-allowed'
-                  : selectedNetwork === network.id
-                    ? 'border-indigo-500 bg-indigo-900/20 cursor-pointer'
-                    : 'border-transparent hover:border-white/20 cursor-pointer'
-                  }`}
-                onClick={() => !network.disabled && handleNetworkSelect(network.id)}
-              >
-                <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${network.color} flex items-center justify-center text-white font-bold mr-4`}>
-                  {network.logo}
-                </div>
-                <span className="font-medium">{network.name}</span>
-                {network.disabled && (
-                  <span className="ml-auto text-xs text-white/50">Coming Soon</span>
-                )}
-              </div>
-            ))}
-          </div>
+  {NETWORKS.map(network => (
+    <div
+      key={network.id}
+      className={`glass-card p-6 flex items-center border-2 ${
+        network.disabled
+          ? 'opacity-50 cursor-not-allowed border-transparent'
+          : 'cursor-pointer hover:border-white/20 border-transparent'
+      }`}
+    >
+      <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${network.color} flex items-center justify-center text-white font-bold mr-4`}>
+        {network.logo}
+      </div>
+      
+      <span className="font-medium flex-grow">{network.name}</span>
+      
+      {network.disabled && (
+        <span className="ml-2 text-xs text-white/50">Coming Soon</span>
+      )}
+    </div>
+  ))}
+</div>
+
 
           <div className="flex justify-between items-center">
             <button
@@ -400,7 +400,7 @@ const CreateToken = () => {
             <button
               className="btn-primary"
               onClick={handleNextStep}
-              disabled={!selectedNetwork}
+              // disabled={!selectedNetwork}
             >
               Continue <ArrowRight size={18} className="ml-2" />
             </button>
@@ -545,141 +545,141 @@ const CreateToken = () => {
           style={{ display: 'none' }}
         >
           {deploymentCompleted ? (
-<div className="glass-card p-8 rounded-xl backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg">
-  {/* Header */}
-  <div className="text-center mb-8">
-    <div className="inline-flex items-center justify-center bg-green-900/20 text-green-400 px-4 py-2 rounded-full mb-3">
-      <CheckCircle2 className="mr-2" size={18} />
-      <h3 className="text-xl font-semibold">Token Contract Deployed!</h3>
-    </div>
-    <p className="text-sm text-white/60">Your token has been successfully deployed to the blockchain</p>
-  </div>
+            <div className="glass-card p-8 rounded-xl backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg">
+              {/* Header */}
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center bg-green-900/20 text-green-400 px-4 py-2 rounded-full mb-3">
+                  <CheckCircle2 className="mr-2" size={18} />
+                  <h3 className="text-xl font-semibold">Token Contract Deployed!</h3>
+                </div>
+                <p className="text-sm text-white/60">Your token has been successfully deployed to the blockchain</p>
+              </div>
 
-  {/* Circular Image Container */}
-  <div className="flex flex-col items-center mb-8">
-    {deployedToken?.metadata_uri || deployedToken?.metadataUri || tokenDetails.metadataURI ? (
-      <div className="relative group">
-        <div className="w-40 h-40 rounded-full border-4 border-indigo-500/30 overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500/10 to-purple-500/10 shadow-lg transition-all duration-300 group-hover:border-indigo-400">
-          <img
-            src={getDisplayableImageUrl(deployedToken?.metadata_uri || deployedToken?.metadataUri || tokenDetails.metadataURI)}
-            alt="Token logo"
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            onError={(e) => {
-              const img = e.target as HTMLImageElement;
-              img.style.display = 'none';
-              const fallback = document.createElement('div');
-              fallback.className = 'w-full h-full flex items-center justify-center';
-              fallback.innerHTML = `
+              {/* Circular Image Container */}
+              <div className="flex flex-col items-center mb-8">
+                {deployedToken?.metadata_uri || deployedToken?.metadataUri || tokenDetails.metadataURI ? (
+                  <div className="relative group">
+                    <div className="w-40 h-40 rounded-full border-4 border-indigo-500/30 overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500/10 to-purple-500/10 shadow-lg transition-all duration-300 group-hover:border-indigo-400">
+                      <img
+                        src={getDisplayableImageUrl(deployedToken?.metadata_uri || deployedToken?.metadataUri || tokenDetails.metadataURI)}
+                        alt="Token logo"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onError={(e) => {
+                          const img = e.target as HTMLImageElement;
+                          img.style.display = 'none';
+                          const fallback = document.createElement('div');
+                          fallback.className = 'w-full h-full flex items-center justify-center';
+                          fallback.innerHTML = `
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.5">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                   <circle cx="8.5" cy="8.5" r="1.5"></circle>
                   <polyline points="21 15 16 10 5 21"></polyline>
                 </svg>
               `;
-              img.parentNode?.appendChild(fallback);
-            }}
-          />
-        </div>
-        <a
-          href={deployedToken?.metadata_uri || deployedToken?.metadataUri || tokenDetails.metadataURI}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-indigo-300 hover:text-indigo-200 mt-3 text-center block transition-colors"
-        >
-          <span className="inline-flex items-center">
-            <ExternalLink size={14} className="mr-1" />
-            View Full Image
-          </span>
-        </a>
-      </div>
-    ) : (
-      <div className="w-40 h-40 rounded-full border-2 border-dashed border-gray-500/50 flex items-center justify-center bg-white/5 transition-all hover:border-indigo-400/50">
-        <div className="text-center">
-          <ImageIcon size={32} className="mx-auto text-gray-400 mb-2" />
-          <span className="text-xs text-gray-400">No Image Provided</span>
-        </div>
-      </div>
-    )}
-  </div>
+                          img.parentNode?.appendChild(fallback);
+                        }}
+                      />
+                    </div>
+                    <a
+                      href={deployedToken?.metadata_uri || deployedToken?.metadataUri || tokenDetails.metadataURI}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-indigo-300 hover:text-indigo-200 mt-3 text-center block transition-colors"
+                    >
+                      <span className="inline-flex items-center">
+                        <ExternalLink size={14} className="mr-1" />
+                        View Full Image
+                      </span>
+                    </a>
+                  </div>
+                ) : (
+                  <div className="w-40 h-40 rounded-full border-2 border-dashed border-gray-500/50 flex items-center justify-center bg-white/5 transition-all hover:border-indigo-400/50">
+                    <div className="text-center">
+                      <ImageIcon size={32} className="mx-auto text-gray-400 mb-2" />
+                      <span className="text-xs text-gray-400">No Image Provided</span>
+                    </div>
+                  </div>
+                )}
+              </div>
 
-  {/* Token Details Grid */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
-    {[
-      { label: "Name", value: deployedToken?.name || tokenDetails.name, color: "text-white" },
-      { label: "Symbol", value: deployedToken?.symbol || tokenDetails.symbol, color: "text-green-300" },
-      { label: "Decimals", value: deployedToken?.decimals || tokenDetails.decimals, color: "text-purple-300" },
-      { 
-        label: "Total Supply", 
-        value: formatNumber(deployedToken?.initial_supply || deployedToken?.initialSupply || tokenDetails.totalSupply),
-        color: "text-yellow-300"
-      }
-    ].map((item, index) => (
-      <div key={index} className="bg-white/5 p-4 rounded-lg border border-white/10 hover:border-indigo-400/30 transition-colors">
-        <p className="text-xs font-medium text-white/50 mb-1 uppercase tracking-wider">{item.label}</p>
-        <p className={`text-lg font-semibold ${item.color}`}>{item.value}</p>
-      </div>
-    ))}
-  </div>
+              {/* Token Details Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+                {[
+                  { label: "Name", value: deployedToken?.name || tokenDetails.name, color: "text-white" },
+                  { label: "Symbol", value: deployedToken?.symbol || tokenDetails.symbol, color: "text-green-300" },
+                  { label: "Decimals", value: deployedToken?.decimals || tokenDetails.decimals, color: "text-purple-300" },
+                  {
+                    label: "Total Supply",
+                    value: formatNumber(deployedToken?.initial_supply || deployedToken?.initialSupply || tokenDetails.totalSupply),
+                    color: "text-yellow-300"
+                  }
+                ].map((item, index) => (
+                  <div key={index} className="bg-white/5 p-4 rounded-lg border border-white/10 hover:border-indigo-400/30 transition-colors">
+                    <p className="text-xs font-medium text-white/50 mb-1 uppercase tracking-wider">{item.label}</p>
+                    <p className={`text-lg font-semibold ${item.color}`}>{item.value}</p>
+                  </div>
+                ))}
+              </div>
 
-  {/* Description and Package ID */}
-  <div className="space-y-6 mb-8">
-    <div className="bg-white/5 p-4 rounded-lg border border-white/10">
-      <p className="text-xs font-medium text-white/50 mb-2 uppercase tracking-wider">Description</p>
-      <p className="text-white/90">
-        {deployedToken?.description || tokenDetails.description || (
-          <span className="text-white/50 italic">No description provided</span>
-        )}
-      </p>
-    </div>
+              {/* Description and Package ID */}
+              <div className="space-y-6 mb-8">
+                <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                  <p className="text-xs font-medium text-white/50 mb-2 uppercase tracking-wider">Description</p>
+                  <p className="text-white/90">
+                    {deployedToken?.description || tokenDetails.description || (
+                      <span className="text-white/50 italic">No description provided</span>
+                    )}
+                  </p>
+                </div>
 
-    <div className="bg-white/5 p-4 rounded-lg border border-white/10">
-      <p className="text-xs font-medium text-white/50 mb-2 uppercase tracking-wider">Package ID</p>
-      <div className="flex items-center justify-between bg-black/20 px-3 py-2 rounded">
-        <p className="break-all font-mono text-sm text-blue-300">
-          {deployedToken?.package_id || deployedToken?.packageId || (
-            <span className="text-white/50">Not available</span>
-          )}
-        </p>
-        {deployedToken?.package_id && (
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(deployedToken.package_id || deployedToken.packageId || '');
-              // Add toast notification here if needed
-            }}
-            className="text-gray-400 hover:text-white transition-colors ml-2"
-            title="Copy to clipboard"
-          >
-            <Copy size={16} />
-          </button>
-        )}
-      </div>
-    </div>
-  </div>
+                <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                  <p className="text-xs font-medium text-white/50 mb-2 uppercase tracking-wider">Package ID</p>
+                  <div className="flex items-center justify-between bg-black/20 px-3 py-2 rounded">
+                    <p className="break-all font-mono text-sm text-blue-300">
+                      {deployedToken?.package_id || deployedToken?.packageId || (
+                        <span className="text-white/50">Not available</span>
+                      )}
+                    </p>
+                    {deployedToken?.package_id && (
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(deployedToken.package_id || deployedToken.packageId || '');
+                          // Add toast notification here if needed
+                        }}
+                        className="text-gray-400 hover:text-white transition-colors ml-2"
+                        title="Copy to clipboard"
+                      >
+                        <Copy size={16} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-  {/* Action Buttons */}
-  <div className="flex flex-col sm:flex-row gap-4">
-    <a
-      href={`https://suiexplorer.com/object/${deployedToken?.package_id || deployedToken?.packageId}?network=testnet`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="btn-secondary flex-1 text-center py-3 rounded-lg transition-all hover:bg-white/20 flex items-center justify-center gap-2"
-    >
-      <ExternalLink size={16} />
-      View on Explorer
-    </a>
-    <button
-      onClick={() => {
-        setDeploymentCompleted(false);
-        setDeployedToken(null);
-        setCurrentStep(1);
-      }}
-      className="btn-primary flex-1 py-3 rounded-lg transition-all hover:bg-indigo-500 flex items-center justify-center gap-2"
-    >
-      <PlusCircle size={16} />
-      Create Another Token
-    </button>
-  </div>
-</div>
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a
+                  href={`https://suiexplorer.com/object/${deployedToken?.package_id || deployedToken?.packageId}?network=testnet`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary flex-1 text-center py-3 rounded-lg transition-all hover:bg-white/20 flex items-center justify-center gap-2"
+                >
+                  <ExternalLink size={16} />
+                  View on Explorer
+                </a>
+                <button
+                  onClick={() => {
+                    setDeploymentCompleted(false);
+                    setDeployedToken(null);
+                    setCurrentStep(1);
+                  }}
+                  className="btn-primary flex-1 py-3 rounded-lg transition-all hover:bg-indigo-500 flex items-center justify-center gap-2"
+                >
+                  <PlusCircle size={16} />
+                  Create Another Token
+                </button>
+              </div>
+            </div>
           ) : (
             <>
               <h2 className="text-2xl font-semibold mb-6">Review & Deploy</h2>
