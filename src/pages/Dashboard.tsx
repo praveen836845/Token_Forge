@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { BarChart3, ArrowUpRight, ArrowDownRight, Copy, ExternalLink, Share2, Settings, Bell } from 'lucide-react';
 import { BACKEND_URL } from '../config';
 import { Info } from 'lucide-react'; // Import the Info icon
+import { useWallet } from '../WalletContext';
 
 
 // Add these interfaces for type safety
@@ -23,9 +24,12 @@ const Dashboard = () => {
   const tooltipRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [selectedToken, setSelectedToken] = useState(tokens[0] || null); // Default to first token
 
-  const account = useCurrentAccount();
+  // const account = useCurrentAccount();
+  const { address : account, isConnected, network } = useWallet();
+console.log("check that address appear or not : ", account);
+
   useEffect(() => {
-    if (!dashboardRef.current) return;
+    // if (!dashboardRef.current) return;
 
     const ctx = gsap.context(() => {
       // Animate dashboard elements
@@ -87,7 +91,7 @@ const Dashboard = () => {
         // toast.loading(`Checking token deployment status (attempt ${attempts}/${MAX_POLLING_ATTEMPTS})...`, { id: toastId });
 
         const res = await fetch(
-          `${BACKEND_URL}/api/user_tokens?address=${account?.address}`
+          `${BACKEND_URL}/api/user_tokens?address=${account}`
         );
 
         if (!res.ok) throw new Error("API error");
@@ -141,6 +145,7 @@ const Dashboard = () => {
 
 
   useEffect(() => {
+
     const handleClickOutside = (event: MouseEvent) => {
       if (activeTooltip &&
         tooltipRefs.current[activeTooltip] &&
@@ -198,6 +203,7 @@ const Dashboard = () => {
   useEffect(() => {
     const toastId = 'token-polling';
 
+    if (!account) return;
     // Start polling when component mounts
     pollForDeployedToken();
 
@@ -206,7 +212,7 @@ const Dashboard = () => {
       setIsPolling(false);
       setPollingAttempts(0);
     };
-  }, []);
+  }, [account]);
 
   // 
 

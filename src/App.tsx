@@ -28,8 +28,6 @@ function App() {
         <Route index element={<Home />} />
         <Route path="create" element={<CreateToken />} />
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="explore" element={<Explore />} />
-        <Route path="learn" element={<Learn />} />
       </Route>
     </Routes>
   );
