@@ -1,9 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { BarChart3, ArrowUpRight, ArrowDownRight, Copy, ExternalLink, Share2, Settings, Bell } from 'lucide-react';
+import { Transaction } from "@mysten/sui/transactions";
+
 import { BACKEND_URL } from '../config';
 import { Info } from 'lucide-react'; // Import the Info icon
 import { useWallet } from '../WalletContext';
+import { Dialog } from '@headlessui/react';
+// import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import toast from 'react-hot-toast';
 
 
 // Add these interfaces for type safety
@@ -15,7 +20,10 @@ import {
 
 
 const Dashboard = () => {
+  const { mutateAsync: signTransaction } = useSignTransaction();
+  const suiClient = useSuiClient();
   const dashboardRef = useRef<HTMLDivElement>(null);
+
   const [tokens, setTokens] = useState<any[]>([]);
   const [isPolling, setIsPolling] = useState(false);
   const [pollingAttempts, setPollingAttempts] = useState(0);
@@ -23,10 +31,21 @@ const Dashboard = () => {
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   const tooltipRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [selectedToken, setSelectedToken] = useState(tokens[0] || null); // Default to first token
+  // Add these near your other state declarations
+  const [mintOpen, setMintOpen] = useState(false);
+  const [burnOpen, setBurnOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [mintAmount, setMintAmount] = useState("");
+  const [mintRecipient, setMintRecipient] = useState("");
+  const [burnAmount, setBurnAmount] = useState("");
+  const [transferAmount, setTransferAmount] = useState("");
+  const [transferRecipient, setTransferRecipient] = useState("");
+  const [coinObjects, setCoinObjects] = useState<CoinObject[]>([]);
+  const [burnCoinId, setBurnCoinId] = useState("");
+  const [transferCoinId, setTransferCoinId] = useState("");
 
   // const account = useCurrentAccount();
-  const { address : account, isConnected, network } = useWallet();
-console.log("check that address appear or not : ", account);
+  const { address: account, isConnected, network } = useWallet();
 
   useEffect(() => {
     // if (!dashboardRef.current) return;
@@ -144,6 +163,192 @@ console.log("check that address appear or not : ", account);
   };
 
 
+  const handleMint = async () => {
+    if (!selectedToken || !mintAmount || !mintRecipient) {
+      toast.error("Missing required fields.");
+      return;
+    }
+  
+    const mintToast = toast.loading("Minting in progress...");
+  
+    try {
+      const tx = new Transaction();
+      tx.moveCall({
+        target: `${selectedToken.package_id}::${moduleName}::mint`,
+        arguments: [
+          tx.object(selectedToken.treasury_cap_id),
+          tx.pure("u64", BigInt(mintAmount)),
+          tx.pure("address", mintRecipient),
+        ],
+      });
+  
+      const signedTx = await signTransaction({ transaction: tx });
+      await suiClient.executeTransactionBlock({
+        transactionBlock: signedTx.transactionBlockBytes,
+        signature: signedTx.signature,
+      });
+  
+      toast.success("Token minted successfully!", { id: mintToast });
+  
+      // Refresh token data
+      pollForDeployedToken();
+      setMintOpen(false);
+    } catch (error) {
+      console.error('Minting failed:', error);
+      toast.error("Minting failed. Please try again.", { id: mintToast });
+    }
+  };
+  
+  const handleBurn = async () => {
+    if (!selectedToken || !burnCoinId) {
+      toast.error('Please select a token and coin to burn');
+      return;
+    }
+  
+    const toastId = toast.loading('Burning token...');
+    console.log("Inside the Burn function", selectedToken);
+  
+    try {
+      const moduleName = selectedToken.symbol.toLowerCase();
+      console.log("ModuleName", moduleName);
+      const tx = new Transaction();
+      console.log('Transaction Hash:', tx);
+      
+      tx.moveCall({
+        target: `${selectedToken.package_id}::${moduleName}::burn`,
+        arguments: [
+          tx.object(selectedToken.treasury_cap_id), // TreasuryCap object
+          tx.object(burnCoinId), // Coin object to burn
+        ],
+      });
+  
+      console.log("After transaction Execution");
+      const signed = await signTransaction({ transaction: tx });
+      const result = await suiClient.executeTransactionBlock({
+        transactionBlock: signed.bytes,
+        signature: signed.signature,
+        options: { showEffects: true, showEvents: true },
+      });
+  
+      // Call backend to delete token record
+      await toast.promise(
+        fetch(`${BACKEND_URL}/delete_token`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ package_id: selectedToken.package_id }),
+        }),
+        {
+          loading: 'Updating records...',
+          success: 'Records updated!',
+          error: 'Failed to update records'
+        }
+      );
+  
+      console.log("Result :", result);
+      if (result.effects?.status.status === "success") {
+        toast.success('Burn successful!', { id: toastId });
+        console.log("Burn successful!");
+        // Refresh token data and coin objects
+        pollForDeployedToken();
+        fetchCoinObjects(selectedToken);
+        setBurnOpen(false);
+        setBurnCoinId("");
+      } else {
+        throw new Error(result.effects?.status.error || "Burn failed");
+      }
+    } catch (error) {
+      console.error('Burning failed:', error);
+      toast.error(`Burning failed: ${error instanceof Error ? error.message : 'Unknown error'}`, { id: toastId });
+    }
+  };
+  
+  
+  const handleTransfer = async () => {
+    console.log("Checking the transfer:::");
+    if (!selectedToken || !transferCoinId  || !transferRecipient) {
+      toast.error('Please fill all transfer fields');
+      return;
+    }
+  
+    const toastId = toast.loading('Processing transfer...');
+  
+    try {
+      // Validate the amount is positive and doesn't exceed balance
+      const coinToTransfer = coinObjects.find(c => c.coinObjectId === transferCoinId);
+      if (!coinToTransfer) {
+        throw new Error('Selected coin not found');
+      }
+  
+  
+  
+      // Create and execute the transfer transaction
+      const moduleName = selectedToken.symbol.toLowerCase();
+      const tx = new Transaction();
+      
+      tx.moveCall({
+        target: `${selectedToken.package_id}::${moduleName}::transfer`,
+        arguments: [
+          tx.object(transferCoinId),
+          tx.pure("address", transferRecipient),
+        ],
+      });
+  
+      const signedTx = await signTransaction({ transaction: tx });
+      const result = await suiClient.executeTransactionBlock({
+        transactionBlock: signedTx.bytes,
+        signature: signedTx.signature,
+        options: { showEffects: true },
+      });
+  
+      if (result.effects?.status.status === "success") {
+        toast.success('Transfer completed successfully!', { id: toastId });
+        
+        // Update backend if needed (optional)
+        try {
+          await fetch(`${BACKEND_URL}/update_token_owner`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              package_id: selectedToken.package_id,
+              new_owner: transferRecipient,
+              amount: transferAmount,
+            }),
+          });
+        } catch (backendError) {
+          console.error('Backend update failed:', backendError);
+        }
+  
+        // Refresh data
+        await fetchCoinObjects(selectedToken);
+        setTransferOpen(false);
+        setTransferAmount("");
+        setTransferRecipient("");
+        setTransferCoinId("");
+      } else {
+        throw new Error(result.effects?.status.error || "Transfer failed");
+      }
+    } catch (error) {
+      console.error('Transfer failed:', error);
+      toast.error(`Transfer failed: ${error instanceof Error ? error.message : 'Unknown error'}`, { id: toastId });
+    }
+  };
+
+
+  const openTransferDialog = async (token: any) => {
+    setSelectedToken(token);
+    setTransferCoinId("");
+    setTransferAmount("");
+    setTransferRecipient("");
+    
+    try {
+      await fetchCoinObjects(token);
+      setTransferOpen(true);
+    } catch (error) {
+      console.error("Failed to fetch coin objects:", error);
+      toast.error("Failed to load token balances");
+      setTransferOpen(true); // Still open dialog but will show error state
+    }
+  };
   useEffect(() => {
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -162,7 +367,6 @@ console.log("check that address appear or not : ", account);
     setActiveTooltip(activeTooltip === tokenId ? null : tokenId);
   };
 
-  console.log("TokenDeployed to this address", tokens);
   // Mock chart data - in a real app this would come from an API
   const chartData = [
     { date: '1 May', value: 65 },
@@ -214,7 +418,58 @@ console.log("check that address appear or not : ", account);
     };
   }, [account]);
 
-  // 
+  const openBurnDialog = async (token : any ) => {
+    setSelectedToken(token);
+    setBurnCoinId("");
+    try {
+      await fetchCoinObjects(token);
+      setBurnOpen(true);
+    } catch (error) {
+      console.error("Failed to fetch coin objects:", error);
+      setBurnOpen(true); // Still open dialog but will show error state
+    }
+  };
+
+
+
+  // Fetch user's Coin<TOKEN> objects for the selected token
+const fetchCoinObjects = async (token : any ) => {
+  if (!account || !token) return;
+  
+  try {
+    const moduleName = token.symbol.toLowerCase();
+    const coinType = `${token.package_id}::${moduleName}::${token.symbol}`;
+    
+    // First try with pagination
+    let allCoins : any  = [];
+    let cursor = null;
+    let hasNextPage = true;
+    
+    while (hasNextPage) {
+      const coins = await suiClient.getCoins({
+        owner: account,
+        coinType,
+        cursor,
+        limit: 50 // Fetch in batches of 50
+      });
+      
+      allCoins = [...allCoins, ...coins.data];
+      hasNextPage = coins.hasNextPage;
+      cursor = coins.nextCursor;
+    }
+    
+    setCoinObjects(allCoins);
+    
+    if (allCoins.length === 0) {
+      // onSnackbar && onSnackbar(`No ${token.symbol} coins found for your address`, "info");
+      console.log("Logs are generated", `${token.symbol}` );
+    }
+  } catch (e) {
+    console.error("Error fetching coin objects:", e);
+    setCoinObjects([]);
+    console.log(`Failed to fetch ${token.symbol} coins: ${e.message}`, "error");
+  }
+};
 
   // Create stroke path (without the closing line to the bottom)
   const createStrokePath = () => {
@@ -325,7 +580,7 @@ console.log("check that address appear or not : ", account);
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.src = 'https://via.placeholder.com/40/6d28d9/FFFFFF?text=' + token.symbol.substring(0, 3);
+                        // target.src = 'https://via.placeholder.com/40/6d28d9/FFFFFF?text=' + token.symbol.substring(0, 3);
                       }}
                     />
                   </div>
@@ -444,90 +699,90 @@ console.log("check that address appear or not : ", account);
         </div>
 
         <div className="mt-8 glass-card p-6">
-        <div className="flex justify-between items-center mb-6">
-  <h2 className="text-xl font-semibold">{selectedToken?.name || 'Token'} Details</h2>
-  <div className="flex space-x-2">
-    {/* Copy Address Button */}
-    <button
-      className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition relative group"
-      title="Copy Address"
-      onClick={async () => {
-        try {
-          await navigator.clipboard.writeText(selectedToken?.package_id || '');
-          // Show copied tooltip
-          const button = event.currentTarget;
-          button.classList.add('copied');
-          setTimeout(() => button.classList.remove('copied'), 2000);
-        } catch (err) {
-          console.error('Failed to copy:', err);
-        }
-      }}
-    >
-      <Copy size={16} />
-      <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-[.copied]:opacity-100 transition-opacity">
-        Copied!
-      </span>
-    </button>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">{selectedToken?.name || 'Token'} Details</h2>
+            <div className="flex space-x-2">
+              {/* Copy Address Button */}
+              <button
+                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition relative group"
+                title="Copy Address"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(selectedToken?.package_id || '');
+                    // Show copied tooltip
+                    const button = event.currentTarget;
+                    button.classList.add('copied');
+                    setTimeout(() => button.classList.remove('copied'), 2000);
+                  } catch (err) {
+                    console.error('Failed to copy:', err);
+                  }
+                }}
+              >
+                <Copy size={16} />
+                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-[.copied]:opacity-100 transition-opacity">
+                  Copied!
+                </span>
+              </button>
 
-    {/* View on Explorer Button */}
-    <button
-      className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition"
-      title="View on Explorer"
-      onClick={() => {
-        if (selectedToken?.package_id) {
-          // Use a real blockchain explorer URL based on network
-          let explorerUrl;
-          switch(selectedToken.network) {
-            case 'Ethereum':
-              explorerUrl = `https://etherscan.io/token/${selectedToken.package_id}`;
-              break;
-            case 'Polygon':
-              explorerUrl = `https://polygonscan.com/token/${selectedToken.package_id}`;
-              break;
-            // Add more networks as needed
-            default:
-              explorerUrl = `https://explorer.example.com/address/${selectedToken.package_id}`;
-          }
-          window.open(explorerUrl, '_blank', 'noopener,noreferrer');
-        }
-      }}
-    >
-      <ExternalLink size={16} />
-    </button>
+              {/* View on Explorer Button */}
+              <button
+                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition"
+                title="View on Explorer"
+                onClick={() => {
+                  if (selectedToken?.package_id) {
+                    // Use a real blockchain explorer URL based on network
+                    let explorerUrl;
+                    switch (selectedToken.network) {
+                      case 'Ethereum':
+                        explorerUrl = `https://etherscan.io/token/${selectedToken.package_id}`;
+                        break;
+                      case 'Polygon':
+                        explorerUrl = `https://polygonscan.com/token/${selectedToken.package_id}`;
+                        break;
+                      // Add more networks as needed
+                      default:
+                        explorerUrl = `https://explorer.example.com/address/${selectedToken.package_id}`;
+                    }
+                    window.open(explorerUrl, '_blank', 'noopener,noreferrer');
+                  }
+                }}
+              >
+                <ExternalLink size={16} />
+              </button>
 
-    {/* Share Button */}
-    <button
-      className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition relative group"
-      title="Share"
-      onClick={async () => {
-        try {
-          const shareData = {
-            title: `${selectedToken?.name} Token Details`,
-            text: `Check out ${selectedToken?.name} (${selectedToken?.symbol}) token`,
-            url: window.location.href,
-          };
-          
-          if (navigator.share) {
-            await navigator.share(shareData);
-          } else {
-            // Fallback for desktop
-            await navigator.clipboard.writeText(window.location.href);
-            const button = event.currentTarget;
-            button.classList.add('shared');
-            setTimeout(() => button.classList.remove('shared'), 2000);
-          }
-        } catch (err) {
-          console.error('Error sharing:', err);
-        }
-      }}
-    >
-      <Share2 size={16} />
-      <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-[.shared]:opacity-100 transition-opacity">
-        Link Copied!
-      </span>
-    </button>
-  </div>
-</div>
+              {/* Share Button */}
+              <button
+                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition relative group"
+                title="Share"
+                onClick={async () => {
+                  try {
+                    const shareData = {
+                      title: `${selectedToken?.name} Token Details`,
+                      text: `Check out ${selectedToken?.name} (${selectedToken?.symbol}) token`,
+                      url: window.location.href,
+                    };
+
+                    if (navigator.share) {
+                      await navigator.share(shareData);
+                    } else {
+                      // Fallback for desktop
+                      await navigator.clipboard.writeText(window.location.href);
+                      const button = event.currentTarget;
+                      button.classList.add('shared');
+                      setTimeout(() => button.classList.remove('shared'), 2000);
+                    }
+                  } catch (err) {
+                    console.error('Error sharing:', err);
+                  }
+                }}
+              >
+                <Share2 size={16} />
+                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-[.shared]:opacity-100 transition-opacity">
+                  Link Copied!
+                </span>
+              </button>
+            </div>
+          </div>
 
           {/* Token details card */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -566,10 +821,33 @@ console.log("check that address appear or not : ", account);
               <h3 className="text-white/50 text-sm mb-1">Decimals</h3>
               <div className="text-sm">{selectedToken?.decimals || '18'}</div>
             </div>
+            {/* Add this section inside your Token Details card, after the existing details */}
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <button
+                className="btn-primary py-2 px-4 rounded-lg flex items-center justify-center"
+                onClick={() => setMintOpen(true)}
+              >
+                <ArrowUpRight size={16} className="mr-2" />
+                Mint Tokens
+              </button>
 
-            <div>
-              {/* Current Date appear */}
+              <button
+                className="btn-secondary py-2 px-4 rounded-lg flex items-center justify-center"
+                onClick={() => selectedToken && openBurnDialog(selectedToken)}
+                >
+                <ArrowDownRight size={16} className="mr-2" />
+                Burn Tokens
+              </button>
+
+              <button
+                className="btn-tertiary py-2 px-4 rounded-lg flex items-center justify-center"
+                onClick={() => selectedToken && openTransferDialog(selectedToken)}
+              >
+                <Share2 size={16} className="mr-2" />
+                Transfer Tokens
+              </button>
             </div>
+
           </div>
         </div>
         <br />
@@ -640,6 +918,187 @@ console.log("check that address appear or not : ", account);
           </div>
         </div>
       </div>
+{/* Mint Dialog */}
+<Dialog open={mintOpen} onClose={() => setMintOpen(false)} className="relative z-50">
+  {/* Background overlay */}
+  <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
+  
+  {/* Dialog container */}
+  <div className="fixed inset-0 flex items-center justify-center p-4">
+    <Dialog.Panel className="glass-card p-6 max-w-md w-full rounded-lg">
+      <Dialog.Title className="text-xl font-semibold mb-4">Mint Tokens</Dialog.Title>
+      
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm text-white/70 mb-1">Amount</label>
+          <input
+            type="number"
+            className="form-input w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2"
+            value={mintAmount}
+            onChange={(e) => setMintAmount(e.target.value)}
+            placeholder="Enter amount to mint"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-white/70 mb-1">Recipient Address</label>
+          <input
+            type="text"
+            className="form-input w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2"
+            value={mintRecipient}
+            onChange={(e) => setMintRecipient(e.target.value)}
+            placeholder="Enter recipient address"
+          />
+        </div>
+      </div>
+      
+      <div className="mt-6 flex justify-end space-x-3">
+        <button 
+          className="btn-secondary px-4 py-2"
+          onClick={() => setMintOpen(false)}
+        >
+          Cancel
+        </button>
+        <button 
+          className="btn-primary px-4 py-2"
+          onClick={handleMint}
+        >
+          Confirm Mint
+        </button>
+      </div>
+    </Dialog.Panel>
+  </div>
+</Dialog>
+
+
+{/* Burn Dialog */}
+<Dialog open={burnOpen} onClose={() => setBurnOpen(false)} className="relative z-50">
+  {/* Background overlay */}
+  <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
+  
+  {/* Dialog container */}
+  <div className="fixed inset-0 flex items-center justify-center p-4">
+    <Dialog.Panel className="glass-card p-6 max-w-md w-full rounded-lg">
+      <Dialog.Title className="text-xl font-semibold mb-4">Burn Tokens</Dialog.Title>
+      
+      <div className="space-y-4">
+        {coinObjects.length > 0 ? (
+          <div>
+            <label className="block text-sm text-white/70 mb-1">Select Coin to Burn</label>
+            <select
+              className="form-input w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2"
+              value={burnCoinId}
+              onChange={(e) => setBurnCoinId(e.target.value)}
+            >
+              <option value="">Select a coin</option>
+              {coinObjects.map((obj) => (
+                <option key={obj.coinObjectId} value={obj.coinObjectId}>
+                  {obj.coinObjectId.slice(0, 8)}... (Balance: {obj.balance})
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <div className="text-white/70 text-sm py-2">
+            No coin objects found for this token
+          </div>
+        )}
+      </div>
+      
+      <div className="mt-6 flex justify-end space-x-3">
+        <button 
+          className="btn-secondary px-4 py-2"
+          onClick={() => setBurnOpen(false)}
+        >
+          Cancel
+        </button>
+        <button 
+          className="btn-primary px-4 py-2"
+          onClick={handleBurn}
+          // disabled={!burnCoinId || coinObjects.length === 0}
+        >
+          Confirm Burn
+        </button>
+      </div>
+    </Dialog.Panel>
+  </div>
+</Dialog>
+
+{/* Transfer Dialog */}
+<Dialog open={transferOpen} onClose={() => setTransferOpen(false)} className="relative z-50">
+  {/* Background overlay */}
+  <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
+  
+  {/* Dialog container */}
+  <div className="fixed inset-0 flex items-center justify-center p-4">
+    <Dialog.Panel className="glass-card p-6 max-w-md w-full rounded-lg">
+      <Dialog.Title className="text-xl font-semibold mb-4">Transfer Tokens</Dialog.Title>
+      
+      <div className="space-y-4">
+        {coinObjects.length > 0 ? (
+          <>
+            <div>
+              <label className="block text-sm text-white/70 mb-1">Select Coin to Transfer</label>
+              <select
+                className="form-input w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2"
+                value={transferCoinId}
+                onChange={(e) => setTransferCoinId(e.target.value)}
+              >
+                <option value="">Select a coin</option>
+                {coinObjects.map((obj) => (
+                  <option key={obj.coinObjectId} value={obj.coinObjectId}>
+                    {obj.coinObjectId.slice(0, 8)}... (Balance: {obj.balance})
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* <div>
+              <label className="block text-sm text-white/70 mb-1">Amount</label>
+              <input
+                type="number"
+                className="form-input w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2"
+                value={transferAmount}
+                onChange={(e) => setTransferAmount(e.target.value)}
+                placeholder="Enter amount to transfer"
+              />
+            </div> */}
+            <div>
+              <label className="block text-sm text-white/70 mb-1">Recipient Address</label>
+              <input
+                type="text"
+                className="form-input w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2"
+                value={transferRecipient}
+                onChange={(e) => setTransferRecipient(e.target.value)}
+                placeholder="Enter recipient address"
+              />
+            </div>
+          </>
+        ) : (
+          <div className="text-white/70 text-sm py-2">
+            No coin objects found for this token
+          </div>
+        )}
+      </div>
+      
+      <div className="mt-6 flex justify-end space-x-3">
+        <button 
+          className="btn-secondary px-4 py-2"
+          onClick={() => setTransferOpen(false)}
+        >
+          Cancel
+        </button>
+        <button 
+          className="btn-primary px-4 py-2"
+          onClick={handleTransfer}
+          disabled={!transferCoinId  || !transferRecipient || coinObjects.length === 0}
+        >
+          Confirm Transfer
+        </button>
+      </div>
+    </Dialog.Panel>
+  </div>
+</Dialog>
+
+
     </div>
   );
 };
