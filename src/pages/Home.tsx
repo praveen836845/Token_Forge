@@ -166,7 +166,7 @@ const Home = () => {
                 <div className="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-pink-600/20 text-pink-400">
                   <Layers size={24} />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Single-Chain Support</h3>
+                <h3 className="text-xl font-semibold mb-3">Built for Sui </h3>
                 <p className="text-white/70 mb-4">
                 Launch secure Sui tokens in minutes—no code, real-time analytics, and native performance.
 

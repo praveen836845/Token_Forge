@@ -10,10 +10,10 @@ const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
-  
+
   // Get current wallet account from Sui
   const account = useCurrentAccount();
-  
+
   // Animation for header elements
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -25,14 +25,14 @@ const Header = () => {
         ease: 'power2.out',
         delay: 0.2
       });
-      
+
       gsap.from('.logo-container', {
         opacity: 0,
         x: -20,
         duration: 0.8,
         ease: 'power2.out'
       });
-      
+
       gsap.from('.wallet-btn', {
         opacity: 0,
         x: 20,
@@ -40,10 +40,10 @@ const Header = () => {
         ease: 'power2.out'
       });
     }, headerRef);
-    
+
     return () => ctx.revert();
   }, []);
-  
+
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -53,27 +53,26 @@ const Header = () => {
         setScrolled(false);
       }
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
+
   // Close mobile menu when route changes
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location]);
-  
+
   // Format wallet address for display
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
   return (
-    <header 
+    <header
       ref={headerRef}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-black/80 backdrop-blur-lg py-3' : 'bg-transparent py-5'
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black/80 backdrop-blur-lg py-3' : 'bg-transparent py-5'
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
@@ -83,14 +82,17 @@ const Header = () => {
               <span className="ml-2 text-xl font-bold gradient-text">TokenForge</span>
             </Link>
           </div>
-          
+
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="absolute" style={{ right: '29rem' }}>
             {account && (
-              <Link to="/dashboard" className="nav-item text-white/80 hover:text-white transition">Dashboard</Link>
+              <Link to="/dashboard" className="nav-item text-white/80 hover:text-white transition">
+                Dashboard
+              </Link>
             )}
           </nav>
-          
+
+
           {/* Wallet Connect Button */}
           <div className="hidden md:block">
             <ConnectButton
@@ -106,16 +108,15 @@ const Header = () => {
                   {account ? formatAddress(account.address) : 'Connected'}
                 </div>
               }
-              className={`wallet-btn flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                account 
-                  ? 'bg-green-600/20 text-green-400 border border-green-500/30' 
+              className={`wallet-btn flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all ${account
+                  ? 'bg-green-600/20 text-green-400 border border-green-500/30'
                   : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-              }`}
+                }`}
             />
           </div>
-          
+
           {/* Mobile menu button */}
-          <button 
+          <button
             className="md:hidden flex items-center text-white"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
@@ -123,7 +124,7 @@ const Header = () => {
           </button>
         </div>
       </div>
-      
+
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-black/95 backdrop-blur-lg">
@@ -149,11 +150,10 @@ const Header = () => {
                     {account ? formatAddress(account.address) : 'Connected'}
                   </div>
                 }
-                className={`w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium ${
-                  account 
-                    ? 'bg-green-600/20 text-green-400 border border-green-500/30' 
+                className={`w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium ${account
+                    ? 'bg-green-600/20 text-green-400 border border-green-500/30'
                     : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                }`}
+                  }`}
               />
             </div>
           </div>
