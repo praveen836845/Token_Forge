@@ -138,10 +138,23 @@ const CreateToken = () => {
 
   const handleTokenDetailChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {  // Updated type to include textarea
     const { name, value } = e.target;
-    setTokenDetails({
-      ...tokenDetails,
-      [name]: value
-    });
+
+    // Allow empty string to let user type freely
+    setTokenDetails((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  
+    // Run validation only if it's a number and not empty
+    if (name === "totalSupply" && value !== "") {
+      const numericValue = Number(value);
+  
+      if (isNaN(numericValue) || numericValue <= 0) {
+        console.warn("Total supply must be a number greater than zero.");
+        // You could set an error state here instead of blocking typing
+      }
+    }
+
   };
 
   const formatNumber = (num: string | number) => {
@@ -178,16 +191,14 @@ const CreateToken = () => {
           setDeployedToken(found);
           setDeploymentCompleted(true); // Add this line
           toast.success(
-            `Token deployed successfully!\nPackage ID: ${
-              (found.package_id || found.packageId).slice(0, 6)
-            }...${
-              (found.package_id || found.packageId).slice(-4)
+            `Token deployed successfully!\nPackage ID: ${(found.package_id || found.packageId).slice(0, 6)
+            }...${(found.package_id || found.packageId).slice(-4)
             }`,
             {
               id: toastId,
               duration: 10000 // Show for 10 seconds
             }
-          );          
+          );
           return;
         }
 
@@ -355,7 +366,7 @@ const CreateToken = () => {
             <button
               className="btn-primary"
               onClick={handleNextStep}
-              // disabled={!selectedType}
+            // disabled={!selectedType}
             >
               Continue <ArrowRight size={18} className="ml-2" />
             </button>
@@ -370,27 +381,26 @@ const CreateToken = () => {
         >
           <h2 className="text-2xl font-semibold mb-6">Select Blockchain Network</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-  {NETWORKS.map(network => (
-    <div
-      key={network.id}
-      className={`glass-card p-6 flex items-center border-2 ${
-        network.disabled
-          ? 'opacity-50 cursor-not-allowed border-transparent'
-          : 'cursor-pointer hover:border-white/20 border-transparent'
-      }`}
-    >
-      <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${network.color} flex items-center justify-center text-white font-bold mr-4`}>
-        {network.logo}
-      </div>
-      
-      <span className="font-medium flex-grow">{network.name}</span>
-      
-      {network.disabled && (
-        <span className="ml-2 text-xs text-white/50">Coming Soon</span>
-      )}
-    </div>
-  ))}
-</div>
+            {NETWORKS.map(network => (
+              <div
+                key={network.id}
+                className={`glass-card p-6 flex items-center border-2 ${network.disabled
+                    ? 'opacity-50 cursor-not-allowed border-transparent'
+                    : 'cursor-pointer hover:border-white/20 border-transparent'
+                  }`}
+              >
+                <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${network.color} flex items-center justify-center text-white font-bold mr-4`}>
+                  {network.logo}
+                </div>
+
+                <span className="font-medium flex-grow">{network.name}</span>
+
+                {network.disabled && (
+                  <span className="ml-2 text-xs text-white/50">Coming Soon</span>
+                )}
+              </div>
+            ))}
+          </div>
 
 
           <div className="flex justify-between items-center">
@@ -404,7 +414,7 @@ const CreateToken = () => {
             <button
               className="btn-primary"
               onClick={handleNextStep}
-              // disabled={!selectedNetwork}
+            // disabled={!selectedNetwork}
             >
               Continue <ArrowRight size={18} className="ml-2" />
             </button>
@@ -512,7 +522,9 @@ const CreateToken = () => {
                   Total Supply <span className="text-red-400">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="number"
+                  step="any" // allows decimals
+                  min="0.0000001" // optional: UI-level hint
                   name="totalSupply"
                   value={tokenDetails.totalSupply}
                   onChange={handleTokenDetailChange}
@@ -520,6 +532,7 @@ const CreateToken = () => {
                   className="form-input"
                   required
                 />
+
               </div>
             </div>
           </div>
@@ -817,7 +830,7 @@ const CreateToken = () => {
                     <div className="text-sm text-green-400 ">
                       Wallet connected: {account?.address.slice(0, 6)}...{account?.address.slice(-4)}
                     </div>
-                    
+
                   </div>
                 )}
               </div>
