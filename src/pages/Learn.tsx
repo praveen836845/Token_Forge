@@ -79,10 +79,6 @@ const Learn = () => {
   return (
     <div ref={pageRef} className="pt-24 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="learn-title text-3xl md:text-4xl font-bold mb-2 text-center">Learn About Tokens</h1>
-        <p className="text-white/70 mb-12 text-center max-w-3xl mx-auto">
-          Discover everything you need to know about creating, managing, and optimizing your crypto tokens.
-        </p>
         
         {/* FAQ Section */}
         <div className="faq-section mb-16">
@@ -96,56 +92,78 @@ const Learn = () => {
               <div className="faq-item">
                 <h3 className="font-semibold text-lg mb-3">What is TokenForge?</h3>
                 <p className="text-white/70">
-                  TokenForge is an online tool to create and deploy your own ERC20 and BEP20 Tokens on many different blockchains such as Ethereum, BNB Smart Chain and more.
+                TokenForge is an online tool to create and deploy your own fungible tokens (Coins) on the Sui blockchain using the Move language. Easily launch your custom tokens and manage them directly on Sui’s high-performance, object-based network.
                 </p>
               </div>
               
               <div className="faq-item">
                 <h3 className="font-semibold text-lg mb-3">What is an ERC-20 Token?</h3>
                 <p className="text-white/70">
-                  ERC-20 tokens are blockchain-based assets. ERC-20 Tokens are Smart Contracts running on the Ethereum blockchain. They can be sent and received like any other crypto. ERC-20 Standard provides specifications on how these assets must be sent, received and stored.
-                </p>
+  Sui Coins are fungible tokens built using the Sui framework’s Coin standard. Unlike traditional blockchains that use mappings to track balances, Sui represents each coin as an object directly owned by a wallet address. This design enables unique features such as parallel execution, object composability, and enhanced security.{' '}
+  <a href="https://blog.sui.io/create-token-erc-20-versus-coin/" target="_blank" rel="noopener noreferrer" className="underline text-white">
+    Learn more about Sui Coins
+  </a>
+</p>
+
               </div>
               
               <div className="faq-item">
-                <h3 className="font-semibold text-lg mb-3">What is a BEP-20 Token?</h3>
+                <h3 className="font-semibold text-lg mb-3">How is Sui different from Ethereum or BNB Chain? </h3>
                 <p className="text-white/70">
-                  BEP-20 tokens are blockchain-based assets. BEP-20 Tokens are Smart Contracts running on the BNB Smart Chain. They can be sent and received like any other crypto. BEP-20 Standard provides specifications on how these assets must be sent, received and stored.
-                </p>
+  On Sui, tokens are not managed by smart contract mappings. Instead, each Coin is an object that resides in your wallet. This object-centric model enables fast, secure, and flexible token operations—such as splitting, merging, and transferring—without requiring global state updates or approvals.{' '}
+  <a
+    href="https://blog.sui.io/create-token-erc-20-versus-coin/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="underline text-white"
+  >
+    Read about Sui’s unique data model
+  </a>
+</p>
+
               </div>
               
               <div className="faq-item">
                 <h3 className="font-semibold text-lg mb-3">What is Fixed Supply Token?</h3>
                 <p className="text-white/70">
-                  The entire token supply of the Token be generated during deploy and will be sent to Token Owner wallet. You can't increase or reduce the supply later.
+                A Fixed Supply Coin on Sui means the total supply is created at launch and cannot be increased or decreased later. All coins are minted during initialization and distributed as desired.
                 </p>
               </div>
               
               <div className="faq-item">
                 <h3 className="font-semibold text-lg mb-3">What is Capped Supply Token?</h3>
                 <p className="text-white/70">
-                  When you create the token, an initial supply of the tokens will be sent to the owners wallet. You can increase or decrease the supply of the token up to Total Supply of the Token. You won't be able to generate more tokens than the defined supply cap.
+                A Capped Supply Coin allows you to mint new coins up to a predefined maximum cap. You can increase the supply over time, but never exceed the cap set during creation.
                 </p>
               </div>
               
               <div className="faq-item">
                 <h3 className="font-semibold text-lg mb-3">What is Unlimited Supply Token?</h3>
                 <p className="text-white/70">
-                  When you create the token, an initial supply of the tokens will be sent to the owners wallet. You can later increase or decrease the supply of the token without any limits.
+                An Unlimited Supply Coin lets you mint or burn coins at any time, with no maximum cap. This is useful for tokens that need flexible supply management.
                 </p>
               </div>
               
               <div className="faq-item">
-                <h3 className="font-semibold text-lg mb-3">What is Single Owner Token?</h3>
+                <h3 className="font-semibold text-lg mb-3">What is a TreasuryCap?</h3>
                 <p className="text-white/70">
-                  A Single Owner Token means that only one address (the owner) has control over the token's administrative functions like minting new tokens or changing parameters.
-                </p>
+  On Sui, the authority to mint new coins is controlled by a special object called a <strong>TreasuryCap</strong>. Only the holder of the TreasuryCap can mint or burn coins for a given token type. The TreasuryCap can also be transferred or destroyed to renounce minting rights.{` `}
+  <a
+    href="https://blog.sui.io/create-token-erc-20-versus-coin/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="underline text-white"
+  >
+    More on TreasuryCap and minting
+  </a>
+</p>
+
               </div>
               
               <div className="faq-item">
-                <h3 className="font-semibold text-lg mb-3">What is a Taxable Token?</h3>
+                <h3 className="font-semibold text-lg mb-3">Can I add transaction fees or taxes to my Sui Coin? </h3>
                 <p className="text-white/70">
-                  A Taxable Token includes a mechanism where a percentage of each transaction is automatically deducted and can be redistributed to holders, sent to a marketing wallet, or used for other purposes defined in the smart contract.
+                Sui’s Move language allows you to program custom logic, including transaction fees, taxes, or reward mechanisms. You can define how coins behave on transfer, including deductions or redistributions, by customizing your Move module.
                 </p>
               </div>
             </div>
@@ -167,9 +185,15 @@ const Learn = () => {
               <p className="text-white/70 mb-6">
                 Learn the fundamentals of blockchain tokens, including types, standards, and use cases.
               </p>
-              <Link to="#" className="text-indigo-400 hover:text-indigo-300 transition flex items-center text-sm font-medium">
-                Explore Basics <ArrowRight size={16} className="ml-2" />
-              </Link>
+              <a
+    href="https://blog.sui.io/create-token-erc-20-versus-coin/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-indigo-400 hover:text-indigo-300 transition flex items-center font-medium mt-2"
+  >
+    Explore Basics
+    <ArrowRight size={16} className="ml-2" />
+  </a>
             </div>
           </div>
           
@@ -184,11 +208,18 @@ const Learn = () => {
               </div>
               <h3 className="text-xl font-semibold mb-3">Technical Guides</h3>
               <p className="text-white/70 mb-6">
-                Dive into smart contract structures, token standards, and advanced token features.
+              Dive into Move module structures, Sui Coin standards, and advanced token features.
               </p>
-              <Link to="#" className="text-indigo-400 hover:text-indigo-300 transition flex items-center text-sm font-medium">
-                View Guides <ArrowRight size={16} className="ml-2" />
-              </Link>
+              <a
+    href="https://docs.sui.io/standards/coin"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-indigo-400 hover:text-indigo-300 transition flex items-center font-medium mt-2"
+  >
+    View Guides
+    <ArrowRight size={16} className="ml-2" />
+  </a>
+
             </div>
           </div>
           
@@ -203,11 +234,17 @@ const Learn = () => {
               </div>
               <h3 className="text-xl font-semibold mb-3">Best Practices</h3>
               <p className="text-white/70 mb-6">
-                Discover tips and strategies for successful token creation, distribution, and management.
+              Discover tips and strategies for successful token creation, distribution, and management on Sui.
               </p>
-              <Link to="#" className="text-indigo-400 hover:text-indigo-300 transition flex items-center text-sm font-medium">
-                Learn More <ArrowRight size={16} className="ml-2" />
-              </Link>
+              <a
+    href="https://docs.sui.io/standards"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-indigo-400 hover:text-indigo-300 transition flex items-center font-medium mt-2"
+  >
+    Learn More
+    <ArrowRight size={16} className="ml-2" />
+  </a>
             </div>
           </div>
         </div>
