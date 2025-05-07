@@ -40,7 +40,7 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="text-white/70 hover:text-white transition">Home</Link></li>
               <li><Link to="/create" className="text-white/70 hover:text-white transition">Create Token</Link></li>
-              <li><Link to="/explore" className="text-white/70 hover:text-white transition">Explore Tokens</Link></li>
+              {/* <li><Link to="/explore" className="text-white/70 hover:text-white transition">Explore Tokens</Link></li> */}
               <li><Link to="/learn" className="text-white/70 hover:text-white transition">Learn</Link></li>
               <li><Link to="/dashboard" className="text-white/70 hover:text-white transition">Dashboard</Link></li>
             </ul>
