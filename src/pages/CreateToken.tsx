@@ -178,13 +178,16 @@ const CreateToken = () => {
           setDeployedToken(found);
           setDeploymentCompleted(true); // Add this line
           toast.success(
-            `Token deployed successfully!\nPackage ID: ${found.package_id || found.packageId}`,
+            `Token deployed successfully!\nPackage ID: ${
+              (found.package_id || found.packageId).slice(0, 6)
+            }...${
+              (found.package_id || found.packageId).slice(-4)
+            }`,
             {
               id: toastId,
               duration: 10000 // Show for 10 seconds
             }
-          );
-          return;
+          )
         }
 
         if (attempts >= MAX_ATTEMPTS) {
