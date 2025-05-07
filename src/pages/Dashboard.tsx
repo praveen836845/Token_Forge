@@ -734,14 +734,15 @@ const fetchCoinObjects = async (token : any ) => {
                     let explorerUrl;
                     switch (selectedToken.network) {
                       case 'Ethereum':
-                        explorerUrl = `https://etherscan.io/token/${selectedToken.package_id}`;
+                        // explorerUrl = `https://etherscan.io/token/${selectedToken.package_id}`;
+                        explorerUrl = `https://suiexplorer.com/object/${selectedToken.package_id}?network=testnet`
                         break;
                       case 'Polygon':
                         explorerUrl = `https://polygonscan.com/token/${selectedToken.package_id}`;
                         break;
                       // Add more networks as needed
                       default:
-                        explorerUrl = `https://explorer.example.com/address/${selectedToken.package_id}`;
+                        explorerUrl = `https://suiexplorer.com/object/${selectedToken.package_id}?network=testnet`
                     }
                     window.open(explorerUrl, '_blank', 'noopener,noreferrer');
                   }
@@ -759,6 +760,9 @@ const fetchCoinObjects = async (token : any ) => {
                     const shareData = {
                       title: `${selectedToken?.name} Token Details`,
                       text: `Check out ${selectedToken?.name} (${selectedToken?.symbol}) token`,
+                      Network: `SUI Testnet`,
+                      TotalSupply : selectedToken?.initial_supply,
+                      Decimals : selectedToken?.decimals,
                       url: window.location.href,
                     };
 
