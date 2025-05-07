@@ -46,6 +46,7 @@ const Dashboard = () => {
 
   // const account = useCurrentAccount();
   const { address: account, isConnected, network } = useWallet();
+  console.log("networkType : ", network)
 
   useEffect(() => {
     // if (!dashboardRef.current) return;
@@ -760,7 +761,7 @@ const fetchCoinObjects = async (token : any ) => {
                     const shareData = {
                       title: `${selectedToken?.name} Token Details`,
                       text: `Check out ${selectedToken?.name} (${selectedToken?.symbol}) token`,
-                      Network: `SUI Testnet`,
+                      Network: `Sui Testnet`,
                       TotalSupply : selectedToken?.initial_supply,
                       Decimals : selectedToken?.decimals,
                       url: window.location.href,

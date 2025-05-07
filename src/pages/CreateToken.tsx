@@ -51,7 +51,7 @@ const TOKEN_TYPES = [
 
 // Blockchain networks
 const NETWORKS = [
-  { id: 'sui', name: 'Sui', logo: 'SUI', color: 'from-blue-500 to-indigo-600', disabled: false }
+  { id: 'sui', name: 'Sui Testnet', logo: 'SUI', color: 'from-blue-500 to-indigo-600', disabled: false }
 ];
 
 const CreateToken = () => {
@@ -67,6 +67,7 @@ const CreateToken = () => {
     description: ''
   });
   const account = useCurrentAccount();
+
   const [deploymentCompleted, setDeploymentCompleted] = useState(false);
   const { mutateAsync: signTransaction } = useSignTransaction();
   const suiClient = useSuiClient();
@@ -717,7 +718,7 @@ const CreateToken = () => {
                     <h4 className="text-sm text-white/50">Network</h4>
                     <p className="font-medium">
                       {/* {NETWORKS.find(n => n.id === selectedNetwork)?.name || '-'} */}
-                      Sui
+                      Sui Testnet
 
                     </p>
                   </div>
