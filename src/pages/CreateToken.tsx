@@ -691,14 +691,17 @@ const CreateToken = () => {
                   <div>
                     <h4 className="text-sm text-white/50">Token Type</h4>
                     <p className="font-medium">
-                      {TOKEN_TYPES.find(t => t.id === selectedType)?.name || '-'}
+                      {/* {TOKEN_TYPES.find(t => t.id === selectedType)?.name || '-'} */}
+                      Full Featured Token
                     </p>
                   </div>
 
                   <div>
                     <h4 className="text-sm text-white/50">Network</h4>
                     <p className="font-medium">
-                      {NETWORKS.find(n => n.id === selectedNetwork)?.name || '-'}
+                      {/* {NETWORKS.find(n => n.id === selectedNetwork)?.name || '-'} */}
+                      Sui
+
                     </p>
                   </div>
 

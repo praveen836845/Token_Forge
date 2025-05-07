@@ -91,6 +91,7 @@ const Header = () => {
                   Dashboard
                 </Link>
               )}
+              
             </nav>
 
             {/* Wallet Connect Button */}
