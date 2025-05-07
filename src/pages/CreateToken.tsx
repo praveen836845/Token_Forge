@@ -804,18 +804,16 @@ const CreateToken = () => {
                   You'll need to pay the gas fee and platform fee to deploy your token. {!walletConnected && "Connect your wallet to continue."}
                 </p>
 
-                {!walletConnected ? (
+                {!account ? (
                   <button className="btn-primary w-full">
                     Connect Wallet to Deploy
                   </button>
                 ) : (
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-green-400">
+                  <div className="flex items-center justify-center">
+                    <div className="text-sm text-green-400 ">
                       Wallet connected: {account?.address.slice(0, 6)}...{account?.address.slice(-4)}
                     </div>
-                    <div className="text-sm">
-                      Balance: {/* Add wallet balance display if available */}
-                    </div>
+                    
                   </div>
                 )}
               </div>
