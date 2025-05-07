@@ -83,36 +83,37 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="absolute" style={{ right: '29rem' }}>
-            {account && (
-              <Link to="/dashboard" className="nav-item text-white/80 hover:text-white transition">
-                Dashboard
-              </Link>
-            )}
-          </nav>
+          <div className="flex items-center gap-4">
+            {/* Desktop Navigation */}
+            <nav>
+              {account && (
+                <Link to="/dashboard" className="nav-item text-white/80 hover:text-white transition">
+                  Dashboard
+                </Link>
+              )}
+            </nav>
 
-
-          {/* Wallet Connect Button */}
-          <div className="hidden md:block">
-            <ConnectButton
-              connectText={
-                <div className="flex items-center">
-                  <Wallet size={16} className="mr-2" />
-                  Connect Wallet
-                </div>
-              }
-              connectedText={
-                <div className="flex items-center">
-                  <Wallet size={16} className="mr-2" />
-                  {account ? formatAddress(account.address) : 'Connected'}
-                </div>
-              }
-              className={`wallet-btn flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all ${account
-                  ? 'bg-green-600/20 text-green-400 border border-green-500/30'
-                  : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                }`}
-            />
+            {/* Wallet Connect Button */}
+            <div className="hidden md:block">
+              <ConnectButton
+                connectText={
+                  <div className="flex items-center">
+                    <Wallet size={16} className="mr-2" />
+                    Connect Wallet
+                  </div>
+                }
+                connectedText={
+                  <div className="flex items-center">
+                    <Wallet size={16} className="mr-2" />
+                    {account ? formatAddress(account.address) : 'Connected'}
+                  </div>
+                }
+                className={`wallet-btn flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all ${account
+                    ? 'bg-green-600/20 text-green-400 border border-green-500/30'
+                    : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                  }`}
+              />
+            </div>
           </div>
 
           {/* Mobile menu button */}
