@@ -187,7 +187,8 @@ const CreateToken = () => {
               id: toastId,
               duration: 10000 // Show for 10 seconds
             }
-          )
+          );          
+          return;
         }
 
         if (attempts >= MAX_ATTEMPTS) {
