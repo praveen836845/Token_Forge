@@ -173,6 +173,7 @@ const Dashboard = () => {
     const mintToast = toast.loading("Minting in progress...");
   
     try {
+      const moduleName = selectedToken.symbol.toLowerCase();
       const tx = new Transaction();
       tx.moveCall({
         target: `${selectedToken.package_id}::${moduleName}::mint`,
@@ -185,8 +186,9 @@ const Dashboard = () => {
   
       const signedTx = await signTransaction({ transaction: tx });
       await suiClient.executeTransactionBlock({
-        transactionBlock: signedTx.transactionBlockBytes,
+        transactionBlock: signedTx.bytes,
         signature: signedTx.signature,
+        options: { showEffects: true, showEvents: true },
       });
   
       toast.success("Token minted successfully!", { id: mintToast });
