@@ -1,3 +1,7 @@
+build/*
+backend/bin/
+backend/tokens_db.json
+
 # Logs
 logs
 *.log
