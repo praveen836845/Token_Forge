@@ -85,7 +85,7 @@ const Home = () => {
             <span className="gradient-text">Create & Launch</span> Your Own Token <br />In Minutes
           </h1>
           <p className="hero-subtitle text-xl md:text-2xl text-white/80 mb-10 max-w-3xl mx-auto">
-            The easiest way to create, deploy and manage custom tokens on multiple blockchains with no coding required.
+            The easiest way to create, deploy and manage custom tokens on Sui blockchains with no coding required.
           </p>
           <div className="hero-cta flex flex-col sm:flex-row justify-center gap-4">
             <Link to="/create" className="btn-primary">

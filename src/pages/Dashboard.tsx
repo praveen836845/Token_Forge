@@ -46,6 +46,7 @@ const Dashboard = () => {
 
   // const account = useCurrentAccount();
   const { address: account, isConnected, network } = useWallet();
+  console.log("networkType : ", network)
 
   useEffect(() => {
     // if (!dashboardRef.current) return;
@@ -172,6 +173,7 @@ const Dashboard = () => {
     const mintToast = toast.loading("Minting in progress...");
   
     try {
+      const moduleName = selectedToken.symbol.toLowerCase();
       const tx = new Transaction();
       tx.moveCall({
         target: `${selectedToken.package_id}::${moduleName}::mint`,
@@ -184,8 +186,9 @@ const Dashboard = () => {
   
       const signedTx = await signTransaction({ transaction: tx });
       await suiClient.executeTransactionBlock({
-        transactionBlock: signedTx.transactionBlockBytes,
+        transactionBlock: signedTx.bytes,
         signature: signedTx.signature,
+        options: { showEffects: true, showEvents: true },
       });
   
       toast.success("Token minted successfully!", { id: mintToast });
@@ -760,7 +763,7 @@ const fetchCoinObjects = async (token : any ) => {
                     const shareData = {
                       title: `${selectedToken?.name} Token Details`,
                       text: `Check out ${selectedToken?.name} (${selectedToken?.symbol}) token`,
-                      Network: `SUI Testnet`,
+                      Network: `Sui Testnet`,
                       TotalSupply : selectedToken?.initial_supply,
                       Decimals : selectedToken?.decimals,
                       url: window.location.href,
