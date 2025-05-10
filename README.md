@@ -104,7 +104,7 @@ Feel free to check the [issues page](https://github.com/praveen836845/Token_Forg
 ## 🧑‍💼 Team
 
 - **Kunal Gola** (Backend & Smart Contract): [GitHub](https://github.com/Gola-k)
-
+- **Praveen Kumar** (Frontend & UI): [GitHub](https://github.com/praveen836845)
 
 ---
 
